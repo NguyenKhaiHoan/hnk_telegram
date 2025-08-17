@@ -1,0 +1,122 @@
+[
+    {
+        "id": "story_001",
+        "user_id": "550e8400-e29b-41d4-a716-446655440001",
+        "user_name": "John Smith",
+        "user_profile_picture": "https://picsum.photos/id/101/200/300",
+        "story_picture": "https://picsum.photos/id/201/400/600",
+        "caption": "Good morning! ☀️",
+        "created_at": "2024-01-25T08:00:00Z",
+        "expires_at": "2024-01-26T08:00:00Z",
+        "is_active": true,
+        "view_count": 45
+    },
+    {
+        "id": "story_002",
+        "user_id": "550e8400-e29b-41d4-a716-446655440002",
+        "user_name": "Emma Johnson",
+        "user_profile_picture": "https://picsum.photos/id/102/200/300",
+        "story_picture": "https://picsum.photos/id/202/400/600",
+        "caption": "Happy weekend! 🎉",
+        "created_at": "2024-01-25T10:30:00Z",
+        "expires_at": "2024-01-26T10:30:00Z",
+        "is_active": true,
+        "view_count": 32
+    },
+    {
+        "id": "story_003",
+        "user_id": "550e8400-e29b-41d4-a716-446655440003",
+        "user_name": "Michael Brown",
+        "user_profile_picture": "https://picsum.photos/id/103/200/300",
+        "story_picture": "https://picsum.photos/id/203/400/600",
+        "caption": "Morning coffee ☕",
+        "created_at": "2024-01-25T07:15:00Z",
+        "expires_at": "2024-01-26T07:15:00Z",
+        "is_active": true,
+        "view_count": 28
+    },
+    {
+        "id": "story_004",
+        "user_id": "550e8400-e29b-41d4-a716-446655440004",
+        "user_name": "Sarah Davis",
+        "user_profile_picture": "https://picsum.photos/id/104/200/300",
+        "story_picture": "https://picsum.photos/id/204/400/600",
+        "caption": "Walking in the park 🌳",
+        "created_at": "2024-01-25T16:00:00Z",
+        "expires_at": "2024-01-26T16:00:00Z",
+        "is_active": true,
+        "view_count": 56
+    },
+    {
+        "id": "story_005",
+        "user_id": "550e8400-e29b-41d4-a716-446655440005",
+        "user_name": "David Wilson",
+        "user_profile_picture": "https://picsum.photos/id/105/200/300",
+        "story_picture": "https://picsum.photos/id/205/400/600",
+        "caption": "Delicious dinner! 🍕",
+        "created_at": "2024-01-25T19:30:00Z",
+        "expires_at": "2024-01-26T19:30:00Z",
+        "is_active": true,
+        "view_count": 41
+    },
+    {
+        "id": "story_006",
+        "user_id": "550e8400-e29b-41d4-a716-446655440006",
+        "user_name": "Lisa Anderson",
+        "user_profile_picture": "https://picsum.photos/id/106/200/300",
+        "story_picture": "https://picsum.photos/id/206/400/600",
+        "caption": "Gym time! 💪",
+        "created_at": "2024-01-25T06:00:00Z",
+        "expires_at": "2024-01-26T06:00:00Z",
+        "is_active": true,
+        "view_count": 38
+    },
+    {
+        "id": "story_007",
+        "user_id": "550e8400-e29b-41d4-a716-446655440007",
+        "user_name": "Robert Taylor",
+        "user_profile_picture": "https://picsum.photos/id/107/200/300",
+        "story_picture": "https://picsum.photos/id/207/400/600",
+        "caption": "Reading books 📚",
+        "created_at": "2024-01-25T20:00:00Z",
+        "expires_at": "2024-01-26T20:00:00Z",
+        "is_active": true,
+        "view_count": 25
+    },
+    {
+        "id": "story_008",
+        "user_id": "550e8400-e29b-41d4-a716-446655440008",
+        "user_name": "Jennifer Martinez",
+        "user_profile_picture": "https://picsum.photos/id/108/200/300",
+        "story_picture": "https://picsum.photos/id/208/400/600",
+        "caption": "Beach trip 🏖️",
+        "created_at": "2024-01-25T14:00:00Z",
+        "expires_at": "2024-01-26T14:00:00Z",
+        "is_active": true,
+        "view_count": 67
+    },
+    {
+        "id": "story_009",
+        "user_id": "550e8400-e29b-41d4-a716-446655440009",
+        "user_name": "Christopher Garcia",
+        "user_profile_picture": "https://picsum.photos/id/109/200/300",
+        "story_picture": "https://picsum.photos/id/209/400/600",
+        "caption": "Playing guitar 🎸",
+        "created_at": "2024-01-25T21:00:00Z",
+        "expires_at": "2024-01-26T21:00:00Z",
+        "is_active": true,
+        "view_count": 34
+    },
+    {
+        "id": "story_010",
+        "user_id": "550e8400-e29b-41d4-a716-446655440010",
+        "user_name": "Amanda Rodriguez",
+        "user_profile_picture": "https://picsum.photos/id/110/200/300",
+        "story_picture": "https://picsum.photos/id/210/400/600",
+        "caption": "Sunset photography 🌅",
+        "created_at": "2024-01-25T18:00:00Z",
+        "expires_at": "2024-01-26T18:00:00Z",
+        "is_active": true,
+        "view_count": 52
+    }
+]
