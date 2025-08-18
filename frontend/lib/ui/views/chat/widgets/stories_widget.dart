@@ -16,6 +16,7 @@ class StoriesWidget extends StatelessWidget {
       builder: (context, stories) {
         return ListView.separated(
           scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
           itemCount: stories.length,
           separatorBuilder: (_, __) => const SizedBox(width: 8),
           itemBuilder: (context, index) {

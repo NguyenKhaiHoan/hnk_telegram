@@ -42,6 +42,7 @@ class AuthRepositoryRemote extends AuthRepository {
       final token = await _sharedPreferencesService.fetchToken();
       _authToken = token;
       _isAuthenticated = token != null;
+      _currentUser = await _sharedPreferencesService.fetchUser();
     } catch (e) {
       _log.severe('Failed to fetch Token from SharedPreferences', e);
     }
@@ -77,7 +78,7 @@ class AuthRepositoryRemote extends AuthRepository {
         name: user.name,
         email: user.email,
         profilePicture: user.profilePicture,
-        isOnline: user.isOnline != 0,
+        isOnline: user.isOnline == 1,
         createdAt: DateTime.parse(user.createdAt),
       );
 

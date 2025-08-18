@@ -298,7 +298,6 @@ class _StoriesHeaderDelegate extends SliverPersistentHeaderDelegate {
       opacity: opacity,
       child: Container(
         color: const Color(0xFFF7F7F7),
-        padding: const EdgeInsets.symmetric(horizontal: 15),
         alignment: Alignment.centerLeft,
         child: const SizedBox(
           height: 74,

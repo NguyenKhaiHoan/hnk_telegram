@@ -97,30 +97,32 @@ class _NavScreenState extends State<NavScreen> {
       ),
       Scaffold(
         backgroundColor: Colors.white,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Assets.icons.icPremium.image(
-              height: 64,
-              color: const Color(0xFF838383),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Premium',
-              style: TextStyle(
-                fontSize: 24,
-                color: Color(0xFF49454F),
-                fontFamily: FontFamily.roboto,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Assets.icons.icPremium.image(
+                height: 64,
+                color: const Color(0xFF838383),
               ),
-            ),
-            const Text(
-              'Coming soon...',
-              style: TextStyle(
-                color: Color(0xFF838383),
-                fontFamily: FontFamily.roboto,
+              const SizedBox(height: 16),
+              const Text(
+                'Premium',
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Color(0xFF49454F),
+                  fontFamily: FontFamily.roboto,
+                ),
               ),
-            ),
-          ],
+              const Text(
+                'Coming soon...',
+                style: TextStyle(
+                  color: Color(0xFF838383),
+                  fontFamily: FontFamily.roboto,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ];
