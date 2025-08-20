@@ -56,7 +56,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
   void _setupScrollListener() {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
+          _scrollController.position.maxScrollExtent + 100) {
         if (_groupsCubit.state.hasMoreMessages &&
             !_groupsCubit.state.isLoadingMore) {
           _groupsCubit.loadMoreMessages();

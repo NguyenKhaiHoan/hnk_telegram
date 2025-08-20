@@ -79,7 +79,7 @@ class GroupsCubit extends BaseCubit<GroupsState> {
     try {
       final result = await _messageRepository.getPaginated(
         _currentChatId,
-        limit: defaultLimit,
+        limit: 20,
       );
 
       result.fold(
@@ -151,8 +151,10 @@ class GroupsCubit extends BaseCubit<GroupsState> {
                 hasMoreMessages: false,
               ),
             );
-            _log.info('📥 No more messages to load');
-            return;
+            if (paginatedResponse.items.isEmpty) {
+              _log.info('📥 No more messages to load');
+              return;
+            }
           }
 
           final newMessages = paginatedResponse.items;
