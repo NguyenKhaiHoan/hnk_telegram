@@ -43,6 +43,7 @@ class ChatItemWidget extends StatelessWidget {
           arguments: {
             'chatId': chatId,
             'chatName': name,
+            'profilePicture': profilePicture,
           },
         );
       },

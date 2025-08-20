@@ -193,19 +193,15 @@ class _ChatsScreenState extends State<ChatsScreen>
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height:
-                    MediaQuery.of(context).size.height - 200, // Fixed height
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildChatList(),
-                    _buildChatList(chatType: ChatType.group),
-                    _buildChatList(chatType: ChatType.channel),
-                    _buildChatList(chatType: ChatType.bot),
-                  ],
-                ),
+            SliverFillRemaining(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildChatList(),
+                  _buildChatList(chatType: ChatType.group),
+                  _buildChatList(chatType: ChatType.channel),
+                  _buildChatList(chatType: ChatType.bot),
+                ],
               ),
             ),
           ],
@@ -258,22 +254,7 @@ class _ChatsScreenState extends State<ChatsScreen>
           );
         }
 
-        if (state.fetchChatListStatus.isFailure) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Error: ${state.errorMessage}'),
-                ElevatedButton(
-                  onPressed: () => context.read<ChatsCubit>().loadChats(),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return const SizedBox();
+        return const SizedBox.shrink();
       },
     );
   }

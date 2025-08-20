@@ -104,6 +104,7 @@ class App extends StatelessWidget {
                   final args = settings.arguments as Map<String, String>?;
                   final chatId = args?['chatId'] ?? 'chat_001';
                   final chatName = args?['chatName'] ?? 'Chat';
+                  final profilePicture = args?['profilePicture'] ?? '';
 
                   return MaterialPageRoute(
                     builder: (context) => BlocProvider(
@@ -114,6 +115,7 @@ class App extends StatelessWidget {
                       child: GroupsScreen(
                         chatId: chatId,
                         chatName: chatName,
+                        profilePicture: profilePicture,
                       ),
                     ),
                   );

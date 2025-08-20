@@ -1,10 +1,15 @@
 import 'package:dartz/dartz.dart';
 
+import 'package:telegram_frontend/data/repositories/base_repository.dart';
 import 'package:telegram_frontend/domain/error/failure.dart';
+import 'package:telegram_frontend/domain/models/paginated_response.dart';
 import 'package:telegram_frontend/domain/models/story.dart';
 
-abstract class StoryRepository {
-  Future<Either<Failure, List<Story>>> getActiveStories();
-
-  Future<Either<Failure, Story>> getStory(String storyId);
+abstract class StoryRepository extends BaseRepository<Story> {
+  @override
+  Future<Either<Failure, PaginatedResponse<Story>>> getPaginated(
+    dynamic params, {
+    int? limit,
+    int? offset,
+  });
 }

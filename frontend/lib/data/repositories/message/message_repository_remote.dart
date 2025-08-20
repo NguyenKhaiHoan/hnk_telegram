@@ -3,11 +3,14 @@ import 'package:logging/logging.dart';
 
 import 'package:telegram_frontend/data/repositories/message/message_repository.dart';
 import 'package:telegram_frontend/data/services/api/api_client.dart';
+
 import 'package:telegram_frontend/data/services/websocket_service.dart';
 import 'package:telegram_frontend/data/translators/message_translator.dart';
 import 'package:telegram_frontend/domain/error/exception.dart';
 import 'package:telegram_frontend/domain/error/failure.dart';
 import 'package:telegram_frontend/domain/models/message.dart';
+import 'package:telegram_frontend/domain/models/paginated_response.dart';
+import 'package:telegram_frontend/utils/constant.dart';
 
 class MessageRepositoryRemote implements MessageRepository {
   MessageRepositoryRemote({
@@ -21,31 +24,45 @@ class MessageRepositoryRemote implements MessageRepository {
   final _log = Logger('MessageRepositoryRemote');
 
   // Expose WebSocket streams
+  @override
   Stream<Message> get messageStream => _webSocketService.messageStream;
+  @override
   Stream<TypingEvent> get typingStream => _webSocketService.typingStream;
+  @override
   Stream<ConnectionStatus> get connectionStream =>
       _webSocketService.connectionStream;
 
   @override
-  Future<Either<Failure, List<Message>>> getMessages(
-    String chatId, {
+  Future<Either<Failure, PaginatedResponse<Message>>> getPaginated(
+    dynamic params, {
     int? limit,
     int? offset,
   }) async {
     try {
+      final chatId = params as String;
       _log.info('Fetching messages for chat: $chatId');
       final response = await _apiClient.getMessages(
         chatId,
-        limit: limit,
-        offset: offset,
+        limit: limit ?? defaultLimit,
+        offset: offset ?? defaultOffset,
       );
 
-      final messages = response.messages
+      final messages = response.items
           .map((apiModel) => MessageTranslator().toDomain(apiModel))
           .toList();
 
-      _log.info('Successfully fetched ${messages.length} messages');
-      return Right(messages);
+      final paginatedResponse = PaginatedResponse<Message>(
+        items: messages,
+        offset: response.offset,
+        limit: response.limit,
+        total: response.total,
+        hasMore: response.hasMore,
+      );
+
+      _log.info(
+        'Successfully fetched ${messages.length}/${response.total} messages',
+      );
+      return Right(paginatedResponse);
     } on AppException catch (e) {
       _log.severe('AppException in getMessages: $e');
       return Left(FailureFactory.fromException(e));
@@ -85,39 +102,28 @@ class MessageRepositoryRemote implements MessageRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, void>> markMessageAsRead(String messageId) async {
-    try {
-      _log.info('Marking message as read: $messageId');
-      await _apiClient.markMessageAsRead(messageId);
-      _log.info('Message marked as read successfully');
-      return const Right(null);
-    } on AppException catch (e) {
-      _log.severe('AppException in markMessageAsRead: $e');
-      return Left(FailureFactory.fromException(e));
-    } catch (e) {
-      _log.severe('Unexpected error in markMessageAsRead: $e');
-      return const Left(UnknownFailure());
-    }
-  }
-
   // WebSocket methods
+  @override
   Future<void> joinChat(String chatId, String userId) async {
     await _webSocketService.joinChat(chatId, userId);
   }
 
+  @override
   void leaveChat() {
     _webSocketService.leaveChat();
   }
 
+  @override
   void sendTyping({required bool isTyping}) {
     _webSocketService.sendTyping(isTyping: isTyping);
   }
 
+  @override
   Future<void> connectWebSocket() async {
     await _webSocketService.connect();
   }
 
+  @override
   void disconnectWebSocket() {
     _webSocketService.disconnect();
   }

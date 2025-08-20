@@ -5,6 +5,7 @@ import 'package:shelf_router/shelf_router.dart';
 
 import '../config/assets.dart';
 import '../model/chat/chat.dart';
+import '../model/paginated_response.dart';
 
 class ChatApi {
   Router get router {
@@ -45,10 +46,16 @@ class ChatApi {
                 (a, b) => b.lastMessageTime.compareTo(a.lastMessageTime),
               );
 
+              final paginatedResponse = PaginatedResponse(
+                items: filteredChats.map((chat) => chat.toJson()).toList(),
+                offset: 0,
+                limit: filteredChats.length,
+                total: filteredChats.length,
+                hasMore: false,
+              );
+
               return Response.ok(
-                json.encode(
-                  filteredChats.map((chat) => chat.toJson()).toList(),
-                ),
+                json.encode(paginatedResponse.toJson()),
                 headers: {'Content-Type': 'application/json'},
               );
             } catch (e) {

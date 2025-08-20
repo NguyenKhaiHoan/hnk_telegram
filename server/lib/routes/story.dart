@@ -3,6 +3,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../config/assets.dart';
 import '../model/story/story.dart';
+import '../model/paginated_response.dart';
 
 class StoryRoutes {
   Router get router {
@@ -16,8 +17,17 @@ class StoryRoutes {
                       .map((json) => Story.fromJson(json))
                       .toList();
 
+              // Create PaginatedResponse
+              final paginatedResponse = PaginatedResponse(
+                items: stories.map((story) => story.toJson()).toList(),
+                offset: 0,
+                limit: stories.length,
+                total: stories.length,
+                hasMore: false,
+              );
+
               return Response.ok(
-                jsonEncode(stories.map((s) => s.toJson()).toList()),
+                jsonEncode(paginatedResponse.toJson()),
                 headers: {'content-type': 'application/json'},
               );
             } catch (e) {

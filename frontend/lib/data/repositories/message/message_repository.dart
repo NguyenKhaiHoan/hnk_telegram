@@ -1,11 +1,14 @@
 import 'package:dartz/dartz.dart';
+import 'package:telegram_frontend/data/repositories/base_repository.dart';
 import 'package:telegram_frontend/data/services/websocket_service.dart';
 import 'package:telegram_frontend/domain/error/failure.dart';
 import 'package:telegram_frontend/domain/models/message.dart';
+import 'package:telegram_frontend/domain/models/paginated_response.dart';
 
-abstract class MessageRepository {
-  Future<Either<Failure, List<Message>>> getMessages(
-    String chatId, {
+abstract class MessageRepository extends BaseRepository<Message> {
+  @override
+  Future<Either<Failure, PaginatedResponse<Message>>> getPaginated(
+    dynamic params, {
     int? limit,
     int? offset,
   });
@@ -17,8 +20,6 @@ abstract class MessageRepository {
     required MessageType type,
     String? replyToMessageId,
   });
-
-  Future<Either<Failure, void>> markMessageAsRead(String messageId);
 
   Stream<Message> get messageStream;
   Stream<TypingEvent> get typingStream;

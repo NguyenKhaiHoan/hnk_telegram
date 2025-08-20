@@ -41,7 +41,7 @@ class ChatsCubit extends BaseCubit<ChatsState> {
     emit(state.copyWith(fetchChatListStatus: FormzSubmissionStatus.inProgress));
 
     try {
-      final result = await _chatRepository.getChats();
+      final result = await _chatRepository.getPaginated(null);
 
       result.fold(
         (failure) {
@@ -52,12 +52,12 @@ class ChatsCubit extends BaseCubit<ChatsState> {
             ),
           );
         },
-        (chats) {
+        (paginatedResponse) {
           emit(
             state.copyWith(
               fetchChatListStatus: FormzSubmissionStatus.success,
-              chats: chats,
-              unreadCounts: _calculateUnreadCounts(chats),
+              chats: paginatedResponse.items,
+              unreadCounts: _calculateUnreadCounts(paginatedResponse.items),
             ),
           );
         },
@@ -84,7 +84,7 @@ class ChatsCubit extends BaseCubit<ChatsState> {
     emit(state.copyWith(fetchStoriesStatus: FormzSubmissionStatus.inProgress));
 
     try {
-      final result = await _storyRepository.getActiveStories();
+      final result = await _storyRepository.getPaginated(null);
 
       result.fold(
         (failure) {
@@ -95,11 +95,12 @@ class ChatsCubit extends BaseCubit<ChatsState> {
             ),
           );
         },
-        (stories) {
-          final userStory =
-              stories.where((s) => s.userId == userId).firstOrNull;
+        (paginatedResponse) {
+          final userStory = paginatedResponse.items
+              .where((s) => s.userId == userId)
+              .firstOrNull;
 
-          final newStories = List<Story>.from(stories);
+          final newStories = List<Story>.from(paginatedResponse.items);
 
           if (userStory != null) {
             newStories

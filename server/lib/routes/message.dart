@@ -4,6 +4,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../config/assets.dart';
+import '../model/paginated_response.dart';
 import '../services/websocket_service.dart';
 
 class MessageApi {
@@ -82,15 +83,17 @@ class MessageApi {
 
               final hasMore = endIndex < chatMessages.length;
 
+              // Create PaginatedResponse
+              final paginatedResponse = PaginatedResponse(
+                items: enrichedMessages,
+                offset: offset,
+                limit: limit,
+                total: chatMessages.length,
+                hasMore: hasMore,
+              );
+
               return Response.ok(
-                json.encode({
-                  'messages': enrichedMessages,
-                  'hasMore': hasMore,
-                  'chatId': chatId,
-                  'limit': limit,
-                  'offset': offset,
-                  'total': chatMessages.length,
-                }),
+                json.encode(paginatedResponse.toJson()),
                 headers: {'Content-Type': 'application/json'},
               );
             } catch (e) {

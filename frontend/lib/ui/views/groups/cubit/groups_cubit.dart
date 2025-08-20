@@ -6,6 +6,7 @@ import 'package:telegram_frontend/data/repositories/message/message_repository.d
 import 'package:telegram_frontend/domain/models/message.dart';
 import 'package:telegram_frontend/ui/core/cubit/base_cubit.dart';
 import 'package:telegram_frontend/ui/views/nav/cubit/nav_cubit.dart';
+import 'package:telegram_frontend/utils/constant.dart';
 
 part 'groups_state.dart';
 
@@ -45,14 +46,6 @@ class GroupsCubit extends BaseCubit<GroupsState> {
           _addNewMessage(newMessage);
         }
       });
-
-      // Listen for typing events
-      _messageRepository.typingStream.listen((typingEvent) {
-        // Handle typing indicators if needed
-        _log.info(
-          '👀 Typing event: ${typingEvent.userId} - ${typingEvent.isTyping}',
-        );
-      });
     } catch (e) {
       _log.severe('❌ Failed to setup WebSocket: $e');
     }
@@ -84,7 +77,10 @@ class GroupsCubit extends BaseCubit<GroupsState> {
     emit(state.copyWith(fetchMessagesStatus: FormzSubmissionStatus.inProgress));
 
     try {
-      final result = await _messageRepository.getMessages(_currentChatId!);
+      final result = await _messageRepository.getPaginated(
+        _currentChatId,
+        limit: defaultLimit,
+      );
 
       result.fold(
         (failure) {
@@ -95,17 +91,24 @@ class GroupsCubit extends BaseCubit<GroupsState> {
             ),
           );
         },
-        (messages) {
-          final sortedMessages = List<Message>.from(messages)
+        (paginatedResponse) {
+          final sortedMessages = List<Message>.from(paginatedResponse.items)
             ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+          final oldestTimestamp =
+              sortedMessages.isNotEmpty ? sortedMessages.last.timestamp : null;
 
           emit(
             state.copyWith(
               fetchMessagesStatus: FormzSubmissionStatus.success,
               messages: sortedMessages,
+              oldestMessageTimestamp: oldestTimestamp,
+              hasMoreMessages: paginatedResponse.hasMore,
             ),
           );
-          _log.info('📥 Loaded ${sortedMessages.length} messages');
+          _log.info(
+            '📥 Loaded ${sortedMessages.length}/${paginatedResponse.total} messages',
+          );
         },
       );
     } catch (error) {
@@ -115,6 +118,69 @@ class GroupsCubit extends BaseCubit<GroupsState> {
           errorMessage: error.toString(),
         ),
       );
+    }
+  }
+
+  Future<void> loadMoreMessages() async {
+    if (_currentChatId == null ||
+        !state.hasMoreMessages ||
+        state.isLoadingMore ||
+        state.oldestMessageTimestamp == null) {
+      return;
+    }
+
+    emit(state.copyWith(isLoadingMore: true));
+
+    try {
+      final result = await _messageRepository.getPaginated(
+        _currentChatId,
+        limit: defaultLimit,
+        offset: state.messages.length,
+      );
+
+      result.fold(
+        (failure) {
+          emit(state.copyWith(isLoadingMore: false));
+          _log.severe('❌ Failed to load more messages: ${failure.message}');
+        },
+        (paginatedResponse) {
+          if (!paginatedResponse.hasMore) {
+            emit(
+              state.copyWith(
+                isLoadingMore: false,
+                hasMoreMessages: false,
+              ),
+            );
+            _log.info('📥 No more messages to load');
+            return;
+          }
+
+          final newMessages = paginatedResponse.items;
+
+          final allMessages = [...state.messages, ...newMessages];
+          final sortedMessages = allMessages
+            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+          final oldestTimestamp =
+              sortedMessages.isNotEmpty ? sortedMessages.last.timestamp : null;
+
+          emit(
+            state.copyWith(
+              messages: sortedMessages,
+              isLoadingMore: false,
+              oldestMessageTimestamp: oldestTimestamp,
+              hasMoreMessages: paginatedResponse.hasMore,
+            ),
+          );
+
+          _log.info(
+            '📥 Loaded ${paginatedResponse.items.length} more messages (${sortedMessages.length}/${paginatedResponse.total} total)',
+          );
+        },
+      );
+    } catch (error) {
+      emit(state.copyWith(isLoadingMore: false));
+      _log.severe('❌ Error loading more messages: $error');
     }
   }
 

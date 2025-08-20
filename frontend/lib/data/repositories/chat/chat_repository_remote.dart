@@ -7,8 +7,10 @@ import 'package:telegram_frontend/data/translators/chat_translator.dart';
 import 'package:telegram_frontend/domain/error/exception.dart';
 import 'package:telegram_frontend/domain/error/failure.dart';
 import 'package:telegram_frontend/domain/models/chat.dart';
+import 'package:telegram_frontend/domain/models/paginated_response.dart';
+import 'package:telegram_frontend/utils/constant.dart';
 
-class ChatRepositoryRemote implements ChatRepository {
+class ChatRepositoryRemote extends ChatRepository {
   ChatRepositoryRemote({
     required ApiClient apiClient,
   }) : _apiClient = apiClient;
@@ -17,36 +19,37 @@ class ChatRepositoryRemote implements ChatRepository {
   final _log = Logger('ChatRepositoryRemote');
 
   @override
-  Future<Either<Failure, List<Chat>>> getChats() async {
+  Future<Either<Failure, PaginatedResponse<Chat>>> getPaginated(
+    dynamic params, {
+    int? limit,
+    int? offset,
+  }) async {
     try {
       _log.info('Fetching chats...');
-      final chatApiModels = await _apiClient.getChats();
-      final chats = chatApiModels
+      final response = await _apiClient.getChats(
+        limit: limit ?? defaultLimit,
+        offset: offset ?? defaultOffset,
+      );
+
+      final chats = response.items
           .map((apiModel) => ChatTranslator().toDomain(apiModel))
           .toList();
 
-      _log.info('Successfully fetched ${chats.length} chats');
-      return Right(chats);
+      final paginatedResponse = PaginatedResponse<Chat>(
+        items: chats,
+        offset: response.offset,
+        limit: response.limit,
+        total: response.total,
+        hasMore: response.hasMore,
+      );
+
+      _log.info('Successfully fetched ${chats.length}/${response.total} chats');
+      return Right(paginatedResponse);
     } on AppException catch (e) {
       _log.severe('AppException in getChats: $e');
       return Left(FailureFactory.fromException(e));
     } catch (e) {
       _log.severe('Unexpected error in getChats: $e');
-      return const Left(UnknownFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, Chat>> getChat(String chatId) async {
-    try {
-      final chatApiModel = await _apiClient.getChat(chatId);
-      final chat = ChatTranslator().toDomain(chatApiModel);
-      return Right(chat);
-    } on AppException catch (e) {
-      _log.severe('AppException in getChat: $e');
-      return Left(FailureFactory.fromException(e));
-    } catch (e) {
-      _log.severe('Unexpected error in getChat: $e');
       return const Left(UnknownFailure());
     }
   }

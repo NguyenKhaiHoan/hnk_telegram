@@ -5,7 +5,9 @@ import 'package:telegram_frontend/data/services/api/api_client.dart';
 import 'package:telegram_frontend/data/translators/story_translator.dart';
 import 'package:telegram_frontend/domain/error/exception.dart';
 import 'package:telegram_frontend/domain/error/failure.dart';
+import 'package:telegram_frontend/domain/models/paginated_response.dart';
 import 'package:telegram_frontend/domain/models/story.dart';
+import 'package:telegram_frontend/utils/constant.dart';
 
 class StoryRepositoryRemote implements StoryRepository {
   StoryRepositoryRemote({
@@ -16,36 +18,36 @@ class StoryRepositoryRemote implements StoryRepository {
   final _log = Logger('StoryRepositoryRemote');
 
   @override
-  Future<Either<Failure, List<Story>>> getActiveStories() async {
+  Future<Either<Failure, PaginatedResponse<Story>>> getPaginated(
+    dynamic params, {
+    int? limit,
+    int? offset,
+  }) async {
     try {
       _log.info('Fetching stories...');
-      final storyApiModels = await _apiClient.getActiveStories();
-      final stories = storyApiModels
+      final response = await _apiClient.getActiveStories(
+        limit: limit ?? defaultLimit,
+        offset: offset ?? defaultOffset,
+      );
+      final stories = response.items
           .map((apiModel) => StoryTranslator().toDomain(apiModel))
           .toList();
 
+      final paginatedResponse = PaginatedResponse<Story>(
+        items: stories,
+        offset: response.offset,
+        limit: response.limit,
+        total: response.total,
+        hasMore: response.hasMore,
+      );
+
       _log.info('Successfully fetched ${stories.length} stories');
-      return Right(stories);
+      return Right(paginatedResponse);
     } on AppException catch (e) {
       _log.severe('AppException in getStories: $e');
       return Left(FailureFactory.fromException(e));
     } catch (e) {
       _log.severe('Unexpected error in getStories: $e');
-      return const Left(UnknownFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, Story>> getStory(String storyId) async {
-    try {
-      final storyApiModel = await _apiClient.getStory(storyId);
-      final story = StoryTranslator().toDomain(storyApiModel);
-      return Right(story);
-    } on AppException catch (e) {
-      _log.severe('AppException in getStory: $e');
-      return Left(FailureFactory.fromException(e));
-    } catch (e) {
-      _log.severe('Unexpected error in getStory: $e');
       return const Left(UnknownFailure());
     }
   }
