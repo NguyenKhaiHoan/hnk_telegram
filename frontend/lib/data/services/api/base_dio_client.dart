@@ -62,7 +62,8 @@ class BaseDioClient {
         },
         onResponse: (response, handler) {
           _log.info(
-            '✅ ${response.requestOptions.method} ${response.requestOptions.path} - ${response.statusCode}',
+            '✅ ${response.requestOptions.method} '
+            '${response.requestOptions.path} - ${response.statusCode}',
           );
 
           // Log response data for debugging
@@ -74,7 +75,8 @@ class BaseDioClient {
         },
         onError: (error, handler) {
           _log.warning(
-            '❌ ${error.requestOptions.method} ${error.requestOptions.path} - ${error.message}',
+            '❌ ${error.requestOptions.method} '
+            '${error.requestOptions.path} - ${error.message}',
           );
 
           // Convert DioException to AppException using ExceptionFactory

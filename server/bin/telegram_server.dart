@@ -12,6 +12,7 @@ import 'package:telegram_server/routes/chat.dart';
 import 'package:telegram_server/routes/message.dart';
 import 'package:telegram_server/routes/story.dart';
 import 'package:telegram_server/config/assets.dart';
+import 'package:telegram_server/services/websocket_service.dart';
 
 // Configure routes.
 final _router =
@@ -19,6 +20,7 @@ final _router =
       ..get('/', _rootHandler)
       ..get('/test', _testHandler)
       ..get('/debug-assets', _debugAssetsHandler)
+      ..get('/ws', WebSocketService.createWebSocketHandler())
       ..mount('/users', UserApi().router.call)
       ..mount('/login', LoginApi().router.call)
       ..mount('/chats', ChatApi().router.call)

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+
 import 'package:telegram_frontend/data/services/api/model/chat/chat_api_model.dart';
 import 'package:telegram_frontend/gen/assets.gen.dart';
 import 'package:telegram_frontend/gen/fonts.gen.dart';
+import 'package:telegram_frontend/routing/routes.dart';
 import 'package:telegram_frontend/ui/core/themes/colors.dart';
 import 'package:telegram_frontend/ui/core/ui/circle_network_avartar.dart';
 
 class ChatItemWidget extends StatelessWidget {
   const ChatItemWidget({
+    required this.chatId,
     required this.profilePicture,
     required this.name,
     required this.type,
@@ -18,6 +21,7 @@ class ChatItemWidget extends StatelessWidget {
     super.key,
   });
 
+  final String chatId;
   final String name;
   final String profilePicture;
   final ChatType type;
@@ -31,46 +35,58 @@ class ChatItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLargeUnreadCount = unreadCount > 9;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleNetworkAvartar(
-            imageUrl: profilePicture,
-            width: 54,
-            height: 54,
-          ),
-          const SizedBox(
-            width: 8,
-          ),
-          Expanded(
-            child: Container(
-              height: 66,
-              padding: const EdgeInsets.only(
-                left: 4,
-                top: 4,
-                bottom: 4,
-              ),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color(0xFFD9D9D9),
-                    width: 0.35,
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          Routes.chat,
+          arguments: {
+            'chatId': chatId,
+            'chatName': name,
+          },
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleNetworkAvartar(
+              imageUrl: profilePicture,
+              width: 54,
+              height: 54,
+            ),
+            const SizedBox(
+              width: 8,
+            ),
+            Expanded(
+              child: Container(
+                height: 66,
+                padding: const EdgeInsets.only(
+                  left: 4,
+                  top: 4,
+                  bottom: 4,
+                ),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Color(0xFFD9D9D9),
+                      width: 0.35,
+                    ),
                   ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildNameRow(),
-                  const SizedBox(height: 4),
-                  _buildLastMessageRow(isLargeUnreadCount),
-                ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildNameRow(),
+                    const SizedBox(height: 4),
+                    _buildLastMessageRow(isLargeUnreadCount),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:telegram_frontend/domain/models/story.dart';
-import 'package:telegram_frontend/ui/views/chat/cubit/chats_cubit.dart';
-import 'package:telegram_frontend/ui/views/chat/widgets/story_item_widget.dart';
+import 'package:telegram_frontend/ui/views/chats/cubit/chats_cubit.dart';
+import 'package:telegram_frontend/ui/views/chats/widgets/story_item_widget.dart';
 
 class StoriesWidget extends StatelessWidget {
   const StoriesWidget({super.key});

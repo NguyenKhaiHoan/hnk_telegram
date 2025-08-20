@@ -39,6 +39,7 @@ class AuthCubit extends Cubit<AuthState> {
           emit(
             state.copyWith(
               status: FormzSubmissionStatus.success,
+              isAuthenticated: true,
             ),
           );
         },
@@ -97,12 +98,14 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           isAuthenticated: isAuthenticated,
+          status: FormzSubmissionStatus.success,
         ),
       );
     } catch (error) {
       emit(
         state.copyWith(
           errorMessage: error.toString(),
+          status: FormzSubmissionStatus.failure,
         ),
       );
     }

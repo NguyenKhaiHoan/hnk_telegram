@@ -5,10 +5,10 @@ import 'package:formz/formz.dart';
 import 'package:telegram_frontend/data/services/api/model/chat/chat_api_model.dart';
 import 'package:telegram_frontend/gen/fonts.gen.dart';
 import 'package:telegram_frontend/ui/core/themes/colors.dart';
-import 'package:telegram_frontend/ui/views/chat/cubit/chats_cubit.dart';
-import 'package:telegram_frontend/ui/views/chat/widgets/chat_item_widget.dart';
-import 'package:telegram_frontend/ui/views/chat/widgets/short_stories_widget.dart';
-import 'package:telegram_frontend/ui/views/chat/widgets/stories_widget.dart';
+import 'package:telegram_frontend/ui/views/chats/cubit/chats_cubit.dart';
+import 'package:telegram_frontend/ui/views/chats/widgets/chat_item_widget.dart';
+import 'package:telegram_frontend/ui/views/chats/widgets/short_stories_widget.dart';
+import 'package:telegram_frontend/ui/views/chats/widgets/stories_widget.dart';
 import 'package:telegram_frontend/utils/extentions/date_time_ext.dart';
 
 class ChatsScreen extends StatefulWidget {
@@ -82,6 +82,7 @@ class _ChatsScreenState extends State<ChatsScreen>
               toolbarHeight: 38,
               elevation: 0,
               scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: const EdgeInsets.only(
                   left: 16,
@@ -192,15 +193,19 @@ class _ChatsScreenState extends State<ChatsScreen>
                 ),
               ),
             ),
-            SliverFillRemaining(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildChatList(),
-                  _buildChatList(chatType: ChatType.group),
-                  _buildChatList(chatType: ChatType.channel),
-                  _buildChatList(chatType: ChatType.bot),
-                ],
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height:
+                    MediaQuery.of(context).size.height - 200, // Fixed height
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildChatList(),
+                    _buildChatList(chatType: ChatType.group),
+                    _buildChatList(chatType: ChatType.channel),
+                    _buildChatList(chatType: ChatType.bot),
+                  ],
+                ),
               ),
             ),
           ],
@@ -223,6 +228,12 @@ class _ChatsScreenState extends State<ChatsScreen>
               ? chats
               : chats.where((chat) => chat.type == chatType).toList();
 
+          if (filteredChats.isEmpty) {
+            return const Center(
+              child: Text('No chats found for this type'),
+            );
+          }
+
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 12),
             itemCount: filteredChats.length,
@@ -230,6 +241,7 @@ class _ChatsScreenState extends State<ChatsScreen>
             itemBuilder: (context, index) {
               final chat = filteredChats[index];
               return ChatItemWidget(
+                chatId: chat.id,
                 profilePicture: chat.profilePicture,
                 name: chat.name,
                 type: chat.type,
@@ -242,6 +254,21 @@ class _ChatsScreenState extends State<ChatsScreen>
             },
             separatorBuilder: (context, index) => const SizedBox(
               height: 8,
+            ),
+          );
+        }
+
+        if (state.fetchChatListStatus.isFailure) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Error: ${state.errorMessage}'),
+                ElevatedButton(
+                  onPressed: () => context.read<ChatsCubit>().loadChats(),
+                  child: const Text('Retry'),
+                ),
+              ],
             ),
           );
         }

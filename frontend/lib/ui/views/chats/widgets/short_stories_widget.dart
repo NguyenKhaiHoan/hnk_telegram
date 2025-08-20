@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:telegram_frontend/domain/models/story.dart';
 import 'package:telegram_frontend/ui/core/themes/colors.dart';
 import 'package:telegram_frontend/ui/core/ui/circle_network_avartar.dart';
-import 'package:telegram_frontend/ui/views/chat/cubit/chats_cubit.dart';
+import 'package:telegram_frontend/ui/views/chats/cubit/chats_cubit.dart';
 
 const _kOverlapStories = 20.0;
 
@@ -105,7 +105,8 @@ class CircleChainPainter extends CustomPainter {
     super.repaint,
   }) : assert(
           circleColors.length == count,
-          'circleColors.length (${circleColors.length}) must equal count ($count)',
+          'circleColors.length (${circleColors.length}) '
+          'must equal count ($count)',
         );
 
   final int count;

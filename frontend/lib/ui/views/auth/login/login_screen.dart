@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:telegram_frontend/routing/routes.dart';
 import 'package:telegram_frontend/ui/cubit/auth/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -50,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             );
+          } else if (state.status.isSuccess && state.isAuthenticated) {
+            Navigator.of(context).pushReplacementNamed(Routes.home);
           }
         },
         child: SingleChildScrollView(

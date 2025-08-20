@@ -4,7 +4,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../config/assets.dart';
-import '../model/message/message.dart';
+import '../services/websocket_service.dart';
 
 class MessageApi {
   Router get router {
@@ -19,10 +19,26 @@ class MessageApi {
                   int.tryParse(request.url.queryParameters['offset'] ?? '0') ??
                   0;
 
-              List<Message> chatMessages =
-                  Assets.messages.where((msg) => msg.chatId == chatId).toList();
+              // Load messages from JSON data
+              final messagesJson = await Assets.loadJsonFile('messages.json');
+              final messagesData =
+                  (messagesJson as List).cast<Map<String, dynamic>>();
 
-              chatMessages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+              // Load users data
+              final usersJson = await Assets.loadJsonFile('users.json');
+              final usersData =
+                  (usersJson as List).cast<Map<String, dynamic>>();
+
+              // Filter messages for this chat
+              final chatMessages =
+                  messagesData
+                      .where((msg) => msg['chat_id'] == chatId)
+                      .toList();
+
+              // Sort by timestamp (newest first)
+              chatMessages.sort(
+                (a, b) => b['timestamp'].compareTo(a['timestamp']),
+              );
 
               final endIndex = (offset + limit).clamp(0, chatMessages.length);
               final startIndex = offset.clamp(0, chatMessages.length);
@@ -31,12 +47,44 @@ class MessageApi {
                 endIndex,
               );
 
+              // Enrich messages with user info
+              final enrichedMessages =
+                  paginatedMessages.map((msg) {
+                    final senderId = msg['sender_id'] as String;
+                    final user = usersData.firstWhere(
+                      (u) => u['id'] == senderId,
+                      orElse:
+                          () => {
+                            'id': senderId,
+                            'name': 'Unknown User',
+                            'profile_picture': null,
+                          },
+                    );
+
+                    return {
+                      'id': msg['id'],
+                      'chat_id': msg['chat_id'],
+                      'sender': {
+                        'id': user['id'],
+                        'name': user['name'],
+                        'profile_picture': user['profile_picture'],
+                      },
+                      'content': msg['content'],
+                      'type': msg['type'],
+                      'status': msg['status'],
+                      'timestamp': msg['timestamp'],
+                      'reply_to_message_id': msg['reply_to_message_id'],
+                      'location': msg['location'],
+                      'link_preview': msg['link_preview'],
+                      'file_info': msg['file_info'],
+                    };
+                  }).toList();
+
               final hasMore = endIndex < chatMessages.length;
 
               return Response.ok(
                 json.encode({
-                  'messages':
-                      paginatedMessages.map((msg) => msg.toJson()).toList(),
+                  'messages': enrichedMessages,
                   'hasMore': hasMore,
                   'chatId': chatId,
                   'limit': limit,
@@ -105,13 +153,15 @@ class MessageApi {
               final messagesJson = await Assets.loadJsonFile('messages.json');
               final messages =
                   (messagesJson as List).cast<Map<String, dynamic>>();
-              messages.add({
+
+              // Create new message
+              final newMessageData = {
                 'id': 'msg_${messages.length + 1}',
                 'chat_id': messageData['chat_id'] as String,
                 'sender_id': messageData['sender_id'] as String,
                 'content': messageData['content'] as String,
                 'type': messageData['type'] as String,
-                'status': messageData['status'] as String,
+                'status': 'sent', // Set as sent
                 'timestamp': DateTime.now().toIso8601String(),
                 'reply_to_message_id':
                     messageData['reply_to_message_id'] as String?,
@@ -119,29 +169,52 @@ class MessageApi {
                     messageData['link_preview'] as Map<String, dynamic>?,
                 'location': messageData['location'] as Map<String, dynamic>?,
                 'file_info': messageData['file_info'] as Map<String, dynamic>?,
-                'metadata': messageData['metadata'] as Map<String, dynamic>?,
-                'is_edited': messageData['is_edited'] as bool,
-                'edited_at': messageData['edited_at'] as String?,
-                'is_deleted': messageData['is_deleted'] as bool,
-                'deleted_at': messageData['deleted_at'] as String?,
-                'forwarded_from_chat_id':
-                    messageData['forwarded_from_chat_id'] as String?,
-                'forwarded_from_message_id':
-                    messageData['forwarded_from_message_id'] as String?,
-                'reply_to_message_ids':
-                    messageData['reply_to_message_ids'] as List<String>?,
-                'reactions': messageData['reactions'] as Map<String, dynamic>?,
-                'viewed_by': messageData['viewed_by'] as List<String>?,
-                'view_count': messageData['view_count'] as int?,
-              });
+              };
+
+              messages.add(newMessageData);
               await Assets.saveJsonFile('messages.json', messages);
 
+              // Load users data to enrich response
+              final usersJson = await Assets.loadJsonFile('users.json');
+              final usersData =
+                  (usersJson as List).cast<Map<String, dynamic>>();
+
+              final senderId = messageData['sender_id'] as String;
+              final user = usersData.firstWhere(
+                (u) => u['id'] == senderId,
+                orElse:
+                    () => {
+                      'id': senderId,
+                      'name': 'Unknown User',
+                      'profile_picture': null,
+                    },
+              );
+
+              // Return enriched message
+              final enrichedMessage = {
+                'id': newMessageData['id'],
+                'chat_id': newMessageData['chat_id'],
+                'sender': {
+                  'id': user['id'],
+                  'name': user['name'],
+                  'profile_picture': user['profile_picture'],
+                },
+                'content': newMessageData['content'],
+                'type': newMessageData['type'],
+                'status': newMessageData['status'],
+                'timestamp': newMessageData['timestamp'],
+                'reply_to_message_id': newMessageData['reply_to_message_id'],
+                'location': newMessageData['location'],
+                'link_preview': newMessageData['link_preview'],
+                'file_info': newMessageData['file_info'],
+              };
+
+              // 🔄 Broadcast message to all connected users in this chat
+              final chatId = newMessageData['chat_id'] as String;
+              WebSocketService.broadcastMessage(chatId, enrichedMessage);
+
               return Response.ok(
-                json.encode({
-                  'message': 'Message sent successfully',
-                  'messageId': 'new_message_id',
-                  'timestamp': DateTime.now().toIso8601String(),
-                }),
+                json.encode(enrichedMessage),
                 headers: {'Content-Type': 'application/json'},
               );
             } catch (e) {

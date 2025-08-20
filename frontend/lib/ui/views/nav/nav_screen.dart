@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:telegram_frontend/data/repositories/chat/chat_repository.dart';
+import 'package:telegram_frontend/data/repositories/story/story_repository.dart';
 import 'package:telegram_frontend/gen/assets.gen.dart';
 import 'package:telegram_frontend/gen/fonts.gen.dart';
-import 'package:telegram_frontend/ui/views/chat/chats.dart';
+import 'package:telegram_frontend/ui/views/chats/chats.dart';
 
 import 'package:telegram_frontend/ui/views/nav/cubit/nav_cubit.dart';
 import 'package:telegram_frontend/ui/views/nav/widgets/bottom_navigation.dart';
@@ -15,7 +17,7 @@ class NavScreen extends StatefulWidget {
 }
 
 class _NavScreenState extends State<NavScreen> {
-  late final NavCubit _homeCubit;
+  late final NavCubit _navCubit;
   List<Widget> _screens = [];
 
   final ValueNotifier<int> _currentIndex = ValueNotifier(0);
@@ -24,14 +26,15 @@ class _NavScreenState extends State<NavScreen> {
   void initState() {
     super.initState();
 
-    _homeCubit = context.read<NavCubit>();
+    _navCubit = context.read<NavCubit>();
+    _navCubit.initialize();
 
     _screens = [
       BlocProvider(
         create: (context) => ChatsCubit(
-          homeCubit: _homeCubit,
-          chatRepository: context.read(),
-          storyRepository: context.read(),
+          navCubit: _navCubit,
+          chatRepository: context.read<ChatRepository>(),
+          storyRepository: context.read<StoryRepository>(),
         )..initialize(),
         child: const ChatsScreen(),
       ),

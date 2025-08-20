@@ -2,7 +2,7 @@ import 'package:shelf/shelf.dart';
 
 Middleware authRequests() => (innerHandler) {
   return (Request request) async {
-    final publicPaths = ['', 'login', 'test', 'debug-assets'];
+    final publicPaths = ['', 'login', 'test', 'debug-assets', 'ws'];
     final path = request.url.path;
 
     if (publicPaths.contains(path) || path.startsWith('test/')) {

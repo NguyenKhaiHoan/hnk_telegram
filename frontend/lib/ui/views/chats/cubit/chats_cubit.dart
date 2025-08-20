@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 
 import 'package:telegram_frontend/data/repositories/chat/chat_repository.dart';
@@ -7,25 +6,26 @@ import 'package:telegram_frontend/data/repositories/story/story_repository.dart'
 import 'package:telegram_frontend/data/services/api/model/chat/chat_api_model.dart';
 import 'package:telegram_frontend/domain/models/chat.dart';
 import 'package:telegram_frontend/domain/models/story.dart';
+import 'package:telegram_frontend/ui/core/cubit/base_cubit.dart';
 import 'package:telegram_frontend/ui/views/nav/cubit/nav_cubit.dart';
 
 part 'chats_state.dart';
 
-class ChatsCubit extends Cubit<ChatsState> {
+class ChatsCubit extends BaseCubit<ChatsState> {
   ChatsCubit({
-    required NavCubit homeCubit,
+    required NavCubit navCubit,
     required ChatRepository chatRepository,
     required StoryRepository storyRepository,
-  })  : _homeCubit = homeCubit,
+  })  : _navCubit = navCubit,
         _chatRepository = chatRepository,
         _storyRepository = storyRepository,
         super(const ChatsState());
 
-  final NavCubit _homeCubit;
+  final NavCubit _navCubit;
   final ChatRepository _chatRepository;
   final StoryRepository _storyRepository;
 
-  String? get userId => _homeCubit.state.user?.id;
+  String? get userId => _navCubit.state.user?.id;
 
   void initialize() {
     loadChats();
